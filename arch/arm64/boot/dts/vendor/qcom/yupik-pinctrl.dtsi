@@ -1084,7 +1084,8 @@
 					pins = "gpio56", "gpio57",
 							"gpio58", "gpio59";
 					drive-strength = <6>;
-					bias-disable;
+					output-low;
+					bias-pull-down;
 				};
 			};
 
@@ -1099,7 +1100,8 @@
 					pins = "gpio56", "gpio57",
 							"gpio58", "gpio59";
 					drive-strength = <6>;
-					bias-disable;
+					output-low;
+					bias-pull-down;
 				};
 			};
 		};
