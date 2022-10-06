@@ -1,13 +1,8 @@
 ifneq ($(CONFIG_ARCH_QTI_VM), y)
-#ifdef VENDOR_EDIT
+
 ifneq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-#endif
+
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
-
-dtbo-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi-overlay.dtbo 
-
-lahaina-rumi-overlay.dtbo-base := lahaina.dtb
-
 dtbo-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi-overlay.dtbo \
 	lahaina-mtp-overlay.dtbo \
 	lahaina-mtp-hsp-overlay.dtbo \
@@ -100,7 +95,6 @@ dtb-$(CONFIG_ARCH_LAHAINA) += lahaina-rumi.dtb \
 	lahaina-v2.1-cdp-hsp-pro.dts \
 	lahaina-v2.1-qrd-hsp-pro.dts
 endif
-#ifdef VENDOR_EDIT
 endif
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 
@@ -114,7 +108,6 @@ lahaina-mtp-v2-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
 lahaina-mtp-v2.1-overlay.dtbo-base := lahaina.dtb lahaina-v2.dtb \
 					lahaina-v2.1.dtb
 endif
-#endif
 
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 dtbo-$(CONFIG_ARCH_HOLI) += holi-rumi-overlay.dtbo \
