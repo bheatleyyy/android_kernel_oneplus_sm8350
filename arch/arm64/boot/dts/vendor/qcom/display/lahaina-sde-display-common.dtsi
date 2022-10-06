@@ -29,7 +29,6 @@
 #include <dt-bindings/clock/mdss-5nm-pll-clk.h>
 #include "dsi-panel-sim-vdc-vid.dtsi"
 #include "dsi-panel-sim-vdc-cmd.dtsi"
-//#ifdef VENDOR_EDIT
 #include <dt-bindings/clock/qcom,rpmh.h>
 #include "dsi-panel-samsung_oneplus_dsc.dtsi"
 #include "dsi-panel-oplus19065-samsung-1440-3168-dsc-cmd.dtsi"
@@ -51,7 +50,6 @@
 #include "dsi-panel-oplus-20085-samsung-s6e3-1792-1920-dsc-cmd.dtsi"
 #include "dsi-panel-samsung_ams662zs01_dvt_dsc_cmd.dtsi"
 #include "dsi-panel-samsung_ams662zs01_dsc_cmd.dtsi"
-//#endif
 
 &soc {
 	dsi_panel_pwr_supply: dsi_panel_pwr_supply {
