@@ -45,10 +45,6 @@
 #include "dailink_extends.h"
 #endif /* OPLUS_FEATURE_AUDIO_FTM */
 
-#ifdef OPLUS_ARCH_EXTENDS
-#include "codecs/sia81xx/sia81xx_aux_dev_if.h"
-#endif /* OPLUS_ARCH_EXTENDS */
-
 #define DRV_NAME "lahaina-asoc-snd"
 #define __CHIPSET__ "LAHAINA "
 #define MSM_DAILINK_NAME(name) (__CHIPSET__#name)
@@ -8619,20 +8615,6 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
                          __func__, pdev->dev.of_node->full_name, ret);
                 pdata->wsa_max_devs = 0;
         }
-
-	#ifdef OPLUS_ARCH_EXTENDS
-	ret = of_property_read_string(pdev->dev.of_node, oplus_speaker_type,
-									&pa_name);
-	if (!ret && !strcmp(pa_name, "sia81xx")) {
-		ret = soc_aux_init_only_sia81xx(pdev, card);
-		if (ret) {
-			pr_err("%s soc_aux_init_only_sia81xx return error.\n", __func__);
-			goto err;
-		}
-	} else {
-		pr_err("%s not use aux sia81xx smartPA.\n", __func__);
-	}
-	#endif /* OPLUS_ARCH_EXTENDS */
 
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
 	if (ret == -EPROBE_DEFER) {
