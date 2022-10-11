@@ -1,5 +1,4 @@
 /* Copyright (c) 2014-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 /*
  * Copyright 2011, The Android Open Source Project
@@ -3770,8 +3769,7 @@ static int msm_mi2s_set_sclk(struct snd_pcm_substream *substream, bool enable)
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
 	int port_id = 0;
-	/* Rx and Tx DAIs should use same clk index */
-	int index = (cpu_dai->id) / 2;
+	int index = cpu_dai->id;
 
 	port_id = msm_get_port_id(rtd->dai_link->id);
 	if (port_id < 0) {
@@ -3947,22 +3945,14 @@ static int msm_pinctrl_init(struct platform_device *pdev, enum pinctrl_mode mode
 		pinctrl_info->pinctrl = pinctrl;
 
 		/* get all the states handles from Device Tree */
-		if (mode == TDM_PINCTRL)
-			pinctrl_info->sleep = pinctrl_lookup_state(pinctrl,
-				"default");
-		else
-			pinctrl_info->sleep = pinctrl_lookup_state(pinctrl,
-                                "sleep");
+		pinctrl_info->sleep = pinctrl_lookup_state(pinctrl,
+			"sleep");
 		if (IS_ERR(pinctrl_info->sleep)) {
 			pr_err("%s: could not get sleep pin state\n", __func__);
 			goto err;
 		}
-		if (mode == TDM_PINCTRL)
-			pinctrl_info->active = pinctrl_lookup_state(pinctrl,
-				"active");
-		else
-			pinctrl_info->active = pinctrl_lookup_state(pinctrl,
-                                "default");
+		pinctrl_info->active = pinctrl_lookup_state(pinctrl,
+			"default");
 		if (IS_ERR(pinctrl_info->active)) {
 			pr_err("%s: could not get active pin state\n",
 				__func__);
@@ -4930,11 +4920,8 @@ static int sa6155_tdm_snd_startup(struct snd_pcm_substream *substream)
 	 */
 	intf_conf = &pdata->tdm_intf_conf[index];
 	mutex_lock(&intf_conf->lock);
-
-	pr_debug("%s: intf_conf->ref_cnt = %d, index = %d\n", __func__, intf_conf->ref_cnt, index);
-
 	if (++intf_conf->ref_cnt == 1) {
-		if (index == TDM_TERT || index == TDM_QUAT || index == TDM_SEC ||
+		if (index == TDM_TERT || index == TDM_QUAT ||
 			index == TDM_QUIN) {
 			pinctrl_info = &pdata->pinctrl_info[index];
 			if (pinctrl_info->pinctrl) {
@@ -4943,8 +4930,6 @@ static int sa6155_tdm_snd_startup(struct snd_pcm_substream *substream)
 				if (ret_pinctrl)
 					pr_err("%s: TDM TLMM pinctrl set failed with %d\n",
 						__func__, ret_pinctrl);
-			} else {
-				pr_err("%s: No set_pinctrl entity for [%d]...\n", __func__, index);
 			}
 		}
 	}
@@ -5014,8 +4999,7 @@ static int msm_mi2s_snd_startup(struct snd_pcm_substream *substream)
 	int ret = 0;
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
-	/* Rx and Tx DAIs should use same clk index */
-	int index = (cpu_dai->id) / 2;
+	int index = cpu_dai->id;
 	unsigned int fmt = SND_SOC_DAIFMT_CBS_CFS;
 	struct snd_soc_card *card = rtd->card;
 	struct msm_asoc_mach_data *pdata = snd_soc_card_get_drvdata(card);
@@ -5044,14 +5028,23 @@ static int msm_mi2s_snd_startup(struct snd_pcm_substream *substream)
 	mutex_lock(&intf_conf->lock);
 	if (++intf_conf->ref_cnt == 1) {
 		/* Check if msm needs to provide the clock to the interface */
-		if (!intf_conf->msm_is_mi2s_master)
+		if (!intf_conf->msm_is_mi2s_master) {
 			mi2s_clk[index].clk_id = mi2s_ebit_clk[index];
+			fmt = SND_SOC_DAIFMT_CBM_CFM;
+		}
 		ret = msm_mi2s_set_sclk(substream, true);
 		if (ret < 0) {
 			dev_err(rtd->card->dev,
 				"%s: afe lpass clock failed to enable MI2S clock, err:%d\n",
 				__func__, ret);
 			goto clean_up;
+		}
+
+		ret = snd_soc_dai_set_fmt(cpu_dai, fmt);
+		if (ret < 0) {
+			pr_err("%s: set fmt cpu dai failed for MI2S (%d), err:%d\n",
+				__func__, index, ret);
+			goto clk_off;
 		}
 
 		pinctrl_info = &pdata->pinctrl_info[index];
@@ -5062,14 +5055,6 @@ static int msm_mi2s_snd_startup(struct snd_pcm_substream *substream)
 				pr_err("%s: MI2S TLMM pinctrl set failed with %d\n",
 					__func__, ret_pinctrl);
 		}
-	}
-	if (!intf_conf->msm_is_mi2s_master)
-		fmt = SND_SOC_DAIFMT_CBM_CFM;
-	ret = snd_soc_dai_set_fmt(cpu_dai, fmt);
-	if (ret < 0) {
-		pr_err("%s: set fmt cpu dai failed for MI2S (%d), err:%d\n",
-			__func__, index, ret);
-		goto clk_off;
 	}
 clk_off:
 	if (ret < 0)
@@ -5086,8 +5071,7 @@ static void msm_mi2s_snd_shutdown(struct snd_pcm_substream *substream)
 {
 	int ret;
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-	/* Rx and Tx DAIs should use same clk index */
-	int index = (rtd->cpu_dai->id) / 2;
+	int index = rtd->cpu_dai->id;
 	struct snd_soc_card *card = rtd->card;
 	struct msm_asoc_mach_data *pdata = snd_soc_card_get_drvdata(card);
 	struct msm_pinctrl_info *pinctrl_info = NULL;
@@ -5173,7 +5157,7 @@ static struct snd_soc_dai_link msm_common_dai_links[] = {
 		.ignore_suspend = 1,
 		.ignore_pmdown_time = 1,
 		.id = MSM_FRONTEND_DAI_VOICEMMODE1,
-		SND_SOC_DAILINK_REG(voicemmode1_hostless),
+		SND_SOC_DAILINK_REG(voicemmode1),
 	},
 	{
 		.name = "MSM VoIP",
@@ -5187,7 +5171,7 @@ static struct snd_soc_dai_link msm_common_dai_links[] = {
 		/* this dainlink has playback support */
 		.ignore_pmdown_time = 1,
 		.id = MSM_FRONTEND_DAI_VOIP,
-		SND_SOC_DAILINK_REG(msmvoip_hostless),
+		SND_SOC_DAILINK_REG(msmvoip),
 	},
 	{
 		.name = MSM_DAILINK_NAME(ULL),
@@ -5355,7 +5339,7 @@ static struct snd_soc_dai_link msm_common_dai_links[] = {
 		.ignore_suspend = 1,
 		.ignore_pmdown_time = 1,
 		.id = MSM_FRONTEND_DAI_VOICEMMODE2,
-		SND_SOC_DAILINK_REG(voicemmode2_hostless),
+		SND_SOC_DAILINK_REG(voicemmode2),
 	},
 	/* LSM FE */
 	{

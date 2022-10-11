@@ -15,9 +15,6 @@ endif
 ifeq ($(TARGET_SUPPORT), qrbx210)
 KBUILD_OPTIONS += CONFIG_ARCH_BENGAL=y
 endif
-ifeq ($(TARGET_SUPPORT), qrb5165)
-KBUILD_OPTIONS += CONFIG_ARCH_KONA=y
-endif
 
 subdir-ccflags-y += -I$(AUDIO_ROOT)/include/uapi/
 
@@ -29,7 +26,6 @@ obj-m += asoc/
 obj-m += asoc/codecs/
 ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), sdmsteppe))
 obj-m += asoc/codecs/wcd934x/
-KBUILD_CFLAGS += -Wno-error
 endif
 ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), qcs40x))
 obj-m += asoc/codecs/bolero/
@@ -42,25 +38,19 @@ obj-m += asoc/codecs/bolero/
 obj-m += asoc/codecs/wcd937x/
 KBUILD_CFLAGS += -Wno-error
 endif
-ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), qrb5165))
-obj-m += asoc/codecs/bolero/
-obj-m += asoc/codecs/wcd938x/
-bj-m += asoc/codecs/wsa883x/
-KBUILD_CFLAGS += -Wno-error
-endif
 ifeq ($(TARGET_SUPPORT), sdmsteppe)
 obj-m += asoc/codecs/bolero/
 obj-m += asoc/codecs/wcd937x/
 endif
 
-ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), sa8155 sa8155ivi sa6155 sa8195 qtiquingvm qtiquingvm8295 sa8295))
+ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), sa8155 sa8155ivi sa6155 sa8195 qtiquingvm qtiquingvm8295))
 KBUILD_OPTIONS += CONFIG_SND_SOC_AUTO=y
 obj-m := ipc/
 obj-m += dsp/
 obj-m += asoc/
 obj-m += asoc/codecs/
 obj-m += soc/
-ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), sa8155 sa8155ivi sa8195 sa8295))
+ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), sa8155 sa8155ivi sa8195))
 KBUILD_OPTIONS += CONFIG_SND_SOC_SA8155=m
 endif
 ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), sa6155))
@@ -73,15 +63,7 @@ ifeq ($(TARGET_SUPPORT), $(filter $(TARGET_SUPPORT), qtiquingvm8295))
 KBUILD_OPTIONS += CONFIG_SND_SOC_GVM_SA8295=m
 endif
 endif
-ifeq ($(AR_SUPPORT), $(filter $(AR_SUPPORT), yes))
-obj-m := ipc/
-obj-m += dsp/
-obj-m += asoc/
-obj-m += asoc/codecs/
-obj-m += soc/
-KBUILD_OPTIONS += CONFIG_SND_SOC_AUTO=y
-KBUILD_OPTIONS += CONFIG_SND_SOC_AR=m
-endif
+
 all:
 	$(shell rm -fr $(shell pwd)/soc/core.h)
 	$(shell ln -s $(KERNEL_SRC)/drivers/pinctrl/core.h $(shell pwd)/soc/core.h)

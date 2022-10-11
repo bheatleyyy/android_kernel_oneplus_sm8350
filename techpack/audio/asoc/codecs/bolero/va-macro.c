@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /* Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -188,10 +187,7 @@ struct va_macro_priv {
 	bool clk_div_switch;
 	int dec_mode[VA_MACRO_NUM_DECIMATORS];
 	u16 current_clk_id;
-	#ifdef OPLUS_BUG_STABILITY
 	int pcm_rate[VA_MACRO_NUM_DECIMATORS];
-	#endif /* OPLUS_BUG_STABILITY */
-	bool dev_up;
 };
 
 static bool va_macro_get_data(struct snd_soc_component *component,
@@ -334,9 +330,9 @@ static int va_macro_event_handler(struct snd_soc_component *component,
 		va_macro_core_vote(va_priv, false);
 		break;
 	case BOLERO_MACRO_EVT_SSR_UP:
+		trace_printk("%s, enter SSR up\n", __func__);
 		/* reset swr after ssr/pdr */
 		va_priv->reset_swr = true;
-		va_priv->dev_up = true;
 		if (va_priv->swr_ctrl_data)
 			swrm_wcd_notify(
 				va_priv->swr_ctrl_data[0].va_swr_pdev,
@@ -346,7 +342,6 @@ static int va_macro_event_handler(struct snd_soc_component *component,
 		bolero_rsc_clk_reset(va_dev, VA_CORE_CLK);
 		break;
 	case BOLERO_MACRO_EVT_SSR_DOWN:
-		va_priv->dev_up = false;
 		if (va_priv->swr_ctrl_data) {
 			swrm_wcd_notify(
 				va_priv->swr_ctrl_data[0].va_swr_pdev,
@@ -450,7 +445,9 @@ static int va_macro_swr_pwr_event_v2(struct snd_soc_dapm_widget *w,
 		}
 		break;
 	case SND_SOC_DAPM_POST_PMD:
-		if (va_priv->current_clk_id == VA_CORE_CLK) {
+		if (va_priv->current_clk_id == VA_CORE_CLK &&
+			va_priv->va_swr_clk_cnt != 0 &&
+			va_priv->tx_clk_status) {
 			ret = bolero_clk_rsc_request_clock(va_priv->dev,
 					va_priv->default_clk_id,
 					TX_CORE_CLK,
@@ -459,8 +456,7 @@ static int va_macro_swr_pwr_event_v2(struct snd_soc_dapm_widget *w,
 				dev_dbg(component->dev,
 					"%s: request clock TX_CLK disable failed\n",
 					__func__);
-				if (va_priv->dev_up)
-					break;
+				break;
 			}
 			ret = bolero_clk_rsc_request_clock(va_priv->dev,
 					va_priv->default_clk_id,
@@ -470,11 +466,10 @@ static int va_macro_swr_pwr_event_v2(struct snd_soc_dapm_widget *w,
 				dev_dbg(component->dev,
 					"%s: request clock VA_CLK disable failed\n",
 					__func__);
-				if (va_priv->dev_up)
-					bolero_clk_rsc_request_clock(va_priv->dev,
-						TX_CORE_CLK,
-						TX_CORE_CLK,
-						false);
+				bolero_clk_rsc_request_clock(va_priv->dev,
+					TX_CORE_CLK,
+					TX_CORE_CLK,
+					false);
 				break;
 			}
 			va_priv->current_clk_id = TX_CORE_CLK;
@@ -713,10 +708,6 @@ static int va_macro_tx_va_mclk_enable(struct va_macro_priv *va_priv,
 							   TX_CORE_CLK,
 							   false);
 			if (ret < 0) {
-				if (va_priv->swr_clk_users == 0) {
-					msm_cdc_pinctrl_select_sleep_state(
-							va_priv->va_swr_gpio_p);
-				}
 				dev_err_ratelimited(va_priv->dev,
 					"%s: swr request clk failed\n",
 					__func__);
@@ -915,7 +906,6 @@ static void va_macro_tx_hpf_corner_freq_callback(struct work_struct *work)
 				hpf_cut_off_freq << 5);
 		snd_soc_component_update_bits(component, hpf_gate_reg,
 					      0x03, 0x02);
-		#ifdef OPLUS_BUG_STABILITY
 		/* Add delay between toggle hpf gate based on sample rate */
 		switch (va_priv->pcm_rate[hpf_work->decimator]) {
 		case 0:
@@ -939,10 +929,6 @@ static void va_macro_tx_hpf_corner_freq_callback(struct work_struct *work)
 		default:
 			usleep_range(125, 130);
 		}
-		#else /* OPLUS_BUG_STABILITY */
-		/* Minimum 1 clk cycle delay is required as per HW spec */
-		usleep_range(1000, 1010);
-		#endif /* OPLUS_BUG_STABILITY */
 		snd_soc_component_update_bits(component, hpf_gate_reg,
 					      0x03, 0x01);
 	} else {
@@ -1187,9 +1173,7 @@ static int va_macro_enable_dec(struct snd_soc_dapm_widget *w,
 	u8 hpf_cut_off_freq;
 	u16 adc_mux_reg = 0;
 	u16 adc_mux0_reg = 0;
-	#ifdef OPLUS_BUG_STABILITY
 	u16 tx_fs_reg = 0;
-	#endif /* OPLUS_BUG_STABILITY */
 	struct device *va_dev = NULL;
 	struct va_macro_priv *va_priv = NULL;
 	int hpf_delay = BOLERO_CDC_VA_TX_DMIC_HPF_DELAY_MS;
@@ -1215,12 +1199,10 @@ static int va_macro_enable_dec(struct snd_soc_dapm_widget *w,
 				VA_MACRO_ADC_MUX_CFG_OFFSET * decimator;
 	adc_mux0_reg = BOLERO_CDC_VA_INP_MUX_ADC_MUX0_CFG0 +
 				VA_MACRO_ADC_MUX_CFG_OFFSET * decimator;
-	#ifdef OPLUS_BUG_STABILITY
 	tx_fs_reg = BOLERO_CDC_VA_TX0_TX_PATH_CTL +
 				VA_MACRO_TX_PATH_OFFSET * decimator;
 	va_priv->pcm_rate[decimator] = (snd_soc_component_read32(component,
 				tx_fs_reg) & 0x0F);
-	#endif /* OPLUS_BUG_STABILITY */
 
 	if(!is_smic_enabled(component, decimator))
 		va_macro_enable_dmic(w, kcontrol, event, adc_mux0_reg);
@@ -2923,8 +2905,6 @@ static int va_macro_init(struct snd_soc_component *component)
 		snd_soc_dapm_ignore_suspend(dapm, "VA SWR_MIC7");
 	}
 	snd_soc_dapm_sync(dapm);
-
-	va_priv->dev_up = true;
 
 	for (i = 0; i < VA_MACRO_NUM_DECIMATORS; i++) {
 		va_priv->va_hpf_work[i].va_priv = va_priv;
