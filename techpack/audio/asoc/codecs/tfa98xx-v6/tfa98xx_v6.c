@@ -33,10 +33,6 @@
 #include "tfa.h"
 #include "tfa_internal.h"
 
-#ifdef OPLUS_FEATURE_SMARTPA_PM
-#include "../smartpa_pm/smartpa_pm.h"
-#endif /* OPLUS_FEATURE_SMARTPA_PM */
-
 #ifdef OPLUS_ARCH_EXTENDS
 #include <linux/regulator/consumer.h>
 #endif /* OPLUS_ARCH_EXTENDS */
@@ -167,8 +163,6 @@ static enum Tfa98xx_Error tfa9874_calibrate(struct tfa98xx *tfa98xx, int *speake
 #ifdef OPLUS_FEATURE_TFA98XX_VI_FEEDBACK
 extern int send_tfa_cal_apr(void *buf, int cmd_size, bool bRead);
 extern int send_tfa_cal_in_band(void *buf, int cmd_size);
-/* yangchao@MM.AUDIO.DRIVER.CODEC Add for distinguishing nxp smartpa */
-extern void set_smartpa_info(int pa_id, int mi2s_id);
 #else /*OPLUS_FEATURE_TFA98XX_VI_FEEDBACK*/
 #define send_tfa_cal_apr(buf, cmd_size, bRead) (0)
 #define send_tfa_cal_in_band(buf, cmd_size) (0)
@@ -4517,10 +4511,6 @@ static int tfa98xx_probe(struct snd_soc_component *component)
 				   tfa98xx_check_feedback, ARRAY_SIZE(tfa98xx_check_feedback));
 	#endif
 
-	#ifdef OPLUS_FEATURE_SMARTPA_PM
-	add_smartpa_pm_controls(tfa98xx->component);
-	#endif /* OPLUS_FEATURE_SMARTPA_PM */
-
 	dev_info(component->dev, "%s: codec registered (%s) ret=%d",
 							__func__, tfa98xx->fw.name, ret);
 
@@ -5103,10 +5093,6 @@ static int tfa98xx_i2c_probe(struct i2c_client *i2c,
 	tfa98xx_device_count++;
 	list_add(&tfa98xx->list, &tfa98xx_device_list);
 	mutex_unlock(&tfa98xx_mutex);
-
-#ifdef OPLUS_FEATURE_TFA98XX_VI_FEEDBACK
-	set_smartpa_info(1, tfa98xx->tfa->mi2s_id);
-#endif /*OPLUS_FEATURE_TFA98XX_VI_FEEDBACK*/
 
 	return 0;
 }

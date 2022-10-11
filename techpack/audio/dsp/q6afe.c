@@ -49,15 +49,7 @@ typedef struct afe_abn_info {
 #define AFE_PORT_ID_TFADSP_TX     AFE_PORT_ID_TERTIARY_MI2S_TX
 #define AFE_PORT_RX	0
 #define AFE_PORT_TX	1
-#endif /*OPLUS_FEATURE_TFA98XX_VI_FEEDBACK*/
-
-#ifdef OPLUS_FEATURE_SMARTPA_PM
-#define MODULE_ID_SMARTPA_PM                            0x10012D19
-
-#define AFE_PARAM_ID_SMARTPA_PM_ENABLE                  0x10012D1A
-#define AFE_PARAM_ID_SMARTPA_PM_SET_PARAM               0x10012D1B
-#define AFE_PARAM_ID_SMARTPA_PM_RESULT                  0x10012D1C
-#endif /* OPLUS_FEATURE_SMARTPA_PM */
+#endif /* OPLUS_FEATURE_TFA98XX_VI_FEEDBACK */
 
 #define WAKELOCK_TIMEOUT	5000
 #define AFE_CLK_TOKEN	1024
@@ -319,10 +311,6 @@ struct afe_ctl {
 #ifdef CONFIG_OPLUS_FEATURE_MM_FEEDBACK
 	uint8_t *afe_abn_info;
 #endif /* CONFIG_OPLUS_FEATURE_MM_FEEDBACK */
-
-#ifdef OPLUS_FEATURE_SMARTPA_PM
-	uint8_t *spk_pm_payload;
-#endif /* OPLUS_FEATURE_SMARTPA_PM */
 };
 
 struct afe_clkinfo_per_port {
@@ -907,12 +895,6 @@ static int32_t sp_make_afe_callback(uint32_t opcode, uint32_t *payload,
 		data_dest = (u32*) (this_afe.afe_abn_info);
 		break;
 #endif /* CONFIG_OPLUS_FEATURE_MM_FEEDBACK */
-#ifdef OPLUS_FEATURE_SMARTPA_PM
-	case AFE_PARAM_ID_SMARTPA_PM_RESULT:
-		expected_size += param_hdr.param_size;
-		data_dest = (u32*) (this_afe.spk_pm_payload);
-		break;
-#endif /* OPLUS_FEATURE_SMARTPA_PM */
 	default:
 		pr_err("%s: Unrecognized param ID %d\n", __func__,
 		       param_hdr.param_id);
@@ -2047,7 +2029,7 @@ done:
 }
 #endif /* CONFIG_OPLUS_FEATURE_MM_FEEDBACK */
 
-#ifdef OPLUS_FEATURE_SMARTPA_PM
+ifdef OPLUS_FEATURE_SMARTPA_PM
 #ifdef OPLUS_FEATURE_TFA98XX_VI_FEEDBACK
 int get_smartpa_info(void);
 #endif /*OPLUS_FEATURE_TFA98XX_VI_FEEDBACK*/
@@ -2176,7 +2158,7 @@ done:
 	return ret;
 }
 EXPORT_SYMBOL(get_smartpa_pm_result_apr);
-#endif /* OPLUS_FEATURE_SMARTPA_PM */
+endif /* OPLUS_FEATURE_SMARTPA_PM */
 
 /*
  * This function shouldn't be called directly. Instead call
