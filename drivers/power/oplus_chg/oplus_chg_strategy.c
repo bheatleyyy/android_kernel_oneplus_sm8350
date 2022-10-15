@@ -1,4 +1,4 @@
-
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) 2020-2020 Oplus. All rights reserved.
  */
@@ -80,8 +80,10 @@ int oplus_chg_get_chg_strategy_data_len(struct oplus_chg_strategy_data data[],
 	int i;
 
 	for (i = 0; i < max_len; i++) {
-		if (data[i].cool_temp == 0 && data[i].heat_temp == 0 &&
-		    data[i].curr_data == 0 && data[i].heat_next_index == 0 &&
+		if (data[i].cool_temp == 0 &&
+		    data[i].heat_temp == 0 &&
+		    data[i].curr_data == 0 &&
+		    data[i].heat_next_index == 0 &&
 		    data[i].cool_next_index == 0)
 			return i;
 	}
@@ -114,38 +116,23 @@ int oplus_chg_strategy_get_data(
 
 	while (temp_diff != 0) {
 		if (temp_diff > 0 &&
-		    temp > strategy->table_data[strategy->temp_region.index]
-				    .heat_temp) {
+		    temp > strategy->table_data[strategy->temp_region.index].heat_temp) {
 			strategy->temp_region.index =
-				strategy->table_data[strategy->temp_region.index]
-					.heat_next_index;
-			if (temp > strategy->table_data[strategy->temp_region
-								.index]
-					    .heat_temp &&
-			    strategy->table_data[strategy->temp_region.index]
-					    .heat_temp < strategy->temp_max)
+				strategy->table_data[strategy->temp_region.index].heat_next_index;
+			if (temp > strategy->table_data[strategy->temp_region.index].heat_temp &&
+			    strategy->table_data[strategy->temp_region.index].heat_temp < strategy->temp_max)
 				strategy->temp_region.temp =
-					strategy->table_data
-						[strategy->temp_region.index]
-							.heat_temp;
+					strategy->table_data[strategy->temp_region.index].heat_temp;
 			else
 				strategy->temp_region.temp = temp;
 		} else if (temp_diff < 0 &&
-			   temp <= strategy->table_data[strategy->temp_region
-								.index]
-					   .cool_temp) {
+			   temp <= strategy->table_data[strategy->temp_region.index].cool_temp) {
 			strategy->temp_region.index =
-				strategy->table_data[strategy->temp_region.index]
-					.cool_next_index;
-			if (temp <= strategy->table_data[strategy->temp_region
-								 .index]
-					    .cool_temp &&
-			    strategy->table_data[strategy->temp_region.index]
-					    .cool_temp > strategy->temp_max)
+				strategy->table_data[strategy->temp_region.index].cool_next_index;
+			if (temp <= strategy->table_data[strategy->temp_region.index].cool_temp &&
+			    strategy->table_data[strategy->temp_region.index].cool_temp > strategy->temp_max)
 				strategy->temp_region.temp =
-					strategy->table_data
-						[strategy->temp_region.index]
-							.heat_temp;
+					strategy->table_data[strategy->temp_region.index].heat_temp;
 			else
 				strategy->temp_region.temp = temp;
 		} else {
