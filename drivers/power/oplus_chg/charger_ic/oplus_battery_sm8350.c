@@ -25,7 +25,7 @@
 #include "../oplus_wireless.h"
 #include "../charger_ic/oplus_short_ic.h"
 #include "../oplus_adapter.h"
-//#include "../gauge_ic/oplus_bq27541.h"
+#include "../gauge_ic/oplus_bq27541.h"
 //#include "oplus_da9313.h"	//for WPC
 //#include "op_charge.h"
 #include "../wireless_ic/oplus_nu1619.h"
