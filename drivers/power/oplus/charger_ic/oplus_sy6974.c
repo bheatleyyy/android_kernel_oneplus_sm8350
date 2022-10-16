@@ -1338,7 +1338,7 @@ static void hw_bc12_init(void)
 }
 
 //static DEVICE_ATTR(sy6974_access, 0664, show_sy6974_access, store_sy6974_access);
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 enum charger_type MTK_CHR_Type_num;
 extern unsigned int upmu_get_rgs_chrdet(void);
 

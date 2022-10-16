@@ -110,7 +110,7 @@ static struct chip_ver {
 static int __bq25601d_read_reg(struct chip_bq25601d *chip, int reg, int *returnData)
 {
 #ifdef CONFIG_OPLUS_CHARGER_MTK
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	int ret = 0;
 	int retry = 3;
 	if (!charger_ic) {
@@ -161,7 +161,7 @@ static int __bq25601d_read_reg(struct chip_bq25601d *chip, int reg, int *returnD
 	*returnData = readData;
 
 	chip->client->ext_flag = 0;
-#endif /* OPLUS_FEATURE_CHG_BASIC */
+#endif /* CONFIG_OPLUS_FEATURE_CHG_BASIC */
 #else
 	int ret = 0;
 	int retry = 3;
@@ -208,7 +208,7 @@ static int bq25601d_read_reg(struct chip_bq25601d *chip, int reg, int *returnDat
 static int __bq25601d_write_reg(struct chip_bq25601d *chip, int reg, int val)
 {
 #ifdef CONFIG_OPLUS_CHARGER_MTK
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	int ret = 0;
 	int retry = 3;
 
@@ -250,7 +250,7 @@ static int __bq25601d_write_reg(struct chip_bq25601d *chip, int reg, int val)
 	}
 
 	chip->client->ext_flag = 0;
-#endif /* OPLUS_FEATURE_CHG_BASIC */
+#endif /* CONFIG_OPLUS_FEATURE_CHG_BASIC */
 #else /* CONFIG_OPLUS_CHARGER_MTK */
 	int ret = 0;
 	int retry = 3;
@@ -571,7 +571,7 @@ static int bq25601d_set_ovp_value(void)
 		chg_err("charger in suspended.\n");
 		return 0;
 	}
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	rc = bq25601d_config_interface(chip, REG06_BQ25601D_ADDRESS,
 		REG06_BQ25601D_OVP_9V, REG06_BQ25601D_OVP_MASK);
 	if (rc < 0) {
@@ -1243,13 +1243,13 @@ int bq25601d_unsuspend_charger(void)
 		chg_debug("rc = %d\n", rc);
 	}
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	msleep(300);
 #endif
 	return rc;
 }
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 static int bq25601d_reset_charger(void)
 {
 	int rc = 0;
@@ -1316,7 +1316,7 @@ static int bq25601d_reset_charger(void)
 
 	return rc;
 }
-#else /* OPLUS_FEATURE_CHG_BASIC */
+#else /* CONFIG_OPLUS_FEATURE_CHG_BASIC */
 static int bq25601d_reset_charger(void)
 {
 	int rc = 0;
@@ -1341,7 +1341,7 @@ static int bq25601d_reset_charger(void)
 
 	return rc;
 }
-#endif /* OPLUS_FEATURE_CHG_BASIC */
+#endif /* CONFIG_OPLUS_FEATURE_CHG_BASIC */
 #if !defined(CONFIG_OPLUS_CHARGER_MTK6873) && !defined(CONFIG_OPLUS_CHARGER_MTK6781)
 static bool bq25601d_check_charger_resume(void)
 {
@@ -1745,7 +1745,7 @@ static void hw_bc12_init(void)
 #endif
 #endif
 //static DEVICE_ATTR(bq25601d_access, 0664, show_bq25601d_access, store_bq25601d_access);
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 #if !defined(CONFIG_OPLUS_CHARGER_MTK6873) && !defined(CONFIG_OPLUS_CHARGER_MTK6781)
 #ifndef CONFIG_OPLUS_CHARGER_MTK6833
 extern enum charger_type MTK_CHR_Type_num;

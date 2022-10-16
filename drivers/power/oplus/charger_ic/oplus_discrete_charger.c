@@ -70,7 +70,7 @@ void adapter_ic_exit(void);
 #endif
 
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 /*for p922x compile*/
 void __attribute__((weak)) oplus_set_wrx_otg_value(void)
 {
@@ -106,7 +106,7 @@ bool __attribute__((weak)) oplus_get_wired_chg_present(void)
 {
 	return false;
 }
-#endif /*OPLUS_FEATURE_CHG_BASIC*/
+#endif /*CONFIG_OPLUS_FEATURE_CHG_BASIC*/
 
 #define VBATT_DEFAULT_MV	3800
 int __attribute__((weak)) qpnp_get_battery_voltage(void)
@@ -1886,13 +1886,13 @@ static int oplus_discrete_usb_prop_is_writeable(struct power_supply *psy,
 	return 0;
 }
 
-#ifndef OPLUS_FEATURE_CHG_BASIC
+#ifndef CONFIG_OPLUS_FEATURE_CHG_BASIC
 static const struct power_supply_desc usb_psy_desc = {
 #else
 static struct power_supply_desc usb_psy_desc = {
 #endif
 	.name = "usb",
-#ifndef OPLUS_FEATURE_CHG_BASIC
+#ifndef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	.type = POWER_SUPPLY_TYPE_USB_PD,
 #else
 	.type = POWER_SUPPLY_TYPE_UNKNOWN,
@@ -1922,7 +1922,7 @@ static int oplus_discrete_init_usb_psy(struct smb5 *chip)
 	return 0;
 }
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 void oplus_set_usb_props_type(enum power_supply_type type)
 {
 	chg_err("old type[%d], new type[%d]\n", usb_psy_desc.type, type);
@@ -1931,7 +1931,7 @@ void oplus_set_usb_props_type(enum power_supply_type type)
 }
 #endif
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 /*************************
  * AC PSY REGISTRATION *
  *************************/
@@ -2323,7 +2323,7 @@ static int discrete_charger_probe(struct platform_device *pdev)
 	struct oplus_chg_chip *oplus_chip;
 	static int get_tcpc_count = 0;
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	oplus_chip = devm_kzalloc(&pdev->dev, sizeof(*oplus_chip), GFP_KERNEL);
 	if (!oplus_chip)
 		return -ENOMEM;
@@ -2406,7 +2406,7 @@ static int discrete_charger_probe(struct platform_device *pdev)
 	chg->dev = &pdev->dev;
 	mutex_init(&chg->adc_lock);
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	oplus_chip->pmic_spmi.smb5_chip = chip;
 #endif
 
@@ -2435,7 +2435,7 @@ static int discrete_charger_probe(struct platform_device *pdev)
 		}
 	}
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	mutex_init(&chg->pinctrl_mutex);
 	chg->pre_current_ma = -1;
 	chg->pd_hard_reset = 0;
@@ -2470,7 +2470,7 @@ static int discrete_charger_probe(struct platform_device *pdev)
 		goto cleanup;
 	}
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	oplus_chg_parse_custom_dt(oplus_chip);
 	oplus_chg_parse_charger_dt(oplus_chip);
 	oplus_chg_2uart_pinctrl_init(oplus_chip);
@@ -2482,7 +2482,7 @@ static int discrete_charger_probe(struct platform_device *pdev)
 	oplus_parse_dt_adc_channels(chg);
 #endif
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	if (oplus_ccdetect_check_is_gpio(oplus_chip) == true)
 		oplus_ccdetect_irq_register(oplus_chip);
 

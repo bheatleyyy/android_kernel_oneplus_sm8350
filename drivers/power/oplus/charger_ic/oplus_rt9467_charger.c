@@ -51,7 +51,7 @@
 struct rt9467_info *rt9467 = NULL;
 static enum power_supply_type charger_type = POWER_SUPPLY_TYPE_UNKNOWN;
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 extern struct oplus_chg_chip *g_oplus_chip;
 void oplus_wake_up_usbtemp_thread(void);
 #endif
@@ -335,7 +335,7 @@ struct rt9467_info {
 	struct timespec ptime[2];
 };
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 static bool disable_PE = 0;
 static bool disable_QC = 0;
 static bool disable_PD = 0;
@@ -1257,7 +1257,7 @@ static int __rt9467_chgdet_handler(struct rt9467_info *info)
 		atomic_set(&info->hvdcp_en_cnt, 0);
 		/* force clear HVDCP_EN */
 		rt9467_clr_bit(info, RT9467_REG_CHG_DPDM1, 0x40);
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 		memset(&rt9467->ptime[0], 0, sizeof(struct timespec));
 		memset(&rt9467->ptime[1], 0, sizeof(struct timespec));
 		info->desc->pre_current_ma = -1;
@@ -1859,7 +1859,7 @@ static int rt9467_hvdcpi_irq_handler(struct rt9467_info *info)
 {
 	dev_notice(info->dev, "%s\n", __func__);
 	
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	if(disable_QC){
 		dev_info(info->dev, "%s:disable_QC\n", __func__);
 		return 0;
@@ -3770,14 +3770,14 @@ static int rt9467_init_setting(struct rt9467_info *info)
 			dev_notice(info->dev, "%s: hz sec chg fail\n",
 				__func__);
 	}
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	ret = rt9467_set_bit(info, RT9467_REG_CHG_CTRL19, 0x80);
 	if (ret < 0) {
 		dev_notice(info->dev, "%s: disable system reset fail\n",
 			__func__);
 		goto err;
 	}
-#endif /*OPLUS_FEATURE_CHG_BASIC*/
+#endif /*CONFIG_OPLUS_FEATURE_CHG_BASIC*/
 err:
 	return ret;
 }
@@ -4140,7 +4140,7 @@ void oplus_rt9467_set_mivr(int vbatt)
 {
 
 	u32 uV = vbatt*1000 + 200000;
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
     if(uV<4200000)
         uV = 4200000;
 #endif	
@@ -4295,7 +4295,7 @@ int oplus_rt9467_charging_enable(void)
 
 int oplus_rt9467_charging_disable(void)
 {
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	struct charger_manager *info = NULL;
 	
 	if(rt9467->chg_consumer != NULL)
@@ -4497,7 +4497,7 @@ int oplus_rt9467_get_dyna_aicl_result(void)
 
 int oplus_rt9467_set_qc_config(void)
 {
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	struct oplus_chg_chip *chip = g_oplus_chip;
 	struct charger_manager *info = NULL;
 		
@@ -4554,7 +4554,7 @@ bool oplus_rt9467_get_shortc_hw_gpio_status(void)
 	return false;
 }
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 int oplus_rt9467_chg_get_pe20_type(void)
 {
 	struct charger_manager *info = NULL;
@@ -4637,7 +4637,7 @@ int oplus_rt9467_chg_reset_pe20(void)
 EXPORT_SYMBOL(oplus_rt9467_chg_reset_pe20);
 #endif
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 int oplus_rt9467_get_pd_type(void)
 {
 	struct charger_manager *info = NULL;
@@ -4839,7 +4839,7 @@ struct oplus_chg_operations  oplus_chg_rt9467_ops = {
 	.get_charger_subtype = oplus_rt9467_get_charger_subtype,
 	.set_qc_config = oplus_rt9467_set_qc_config,
 	.enable_qc_detect = oplus_rt9467_enable_qc_detect,
-//#ifdef OPLUS_FEATURE_CHG_BASIC
+//#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 //	.oplus_chg_get_pe20_type = oplus_rt9467_chg_get_pe20_type,
 //	.oplus_chg_pe20_setup = oplus_rt9467_chg_pe20_setup,
 //	.oplus_chg_reset_pe20 = oplus_rt9467_chg_reset_pe20,
@@ -4932,7 +4932,7 @@ static int rt9467_probe(struct i2c_client *client,
 	if (!info)
 		return -ENOMEM;
 	rt9467 = info;
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	info->chg_consumer =
 		charger_manager_get_by_name(&client->dev, "rt9467");
 #endif

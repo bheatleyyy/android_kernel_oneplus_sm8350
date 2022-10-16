@@ -38,10 +38,10 @@
 #include "oplus_rt9471_reg.h"
 #define RT9471_DRV_VERSION	"1.0.6_MTK"
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 #include <soc/oplus/oplus_project.h>
 extern unsigned int is_project(int project );
-#endif /*OPLUS_FEATURE_CHG_BASIC*/
+#endif /*CONFIG_OPLUS_FEATURE_CHG_BASIC*/
 
 extern void set_charger_ic(int sel);
 struct rt9471_chip *rt9471 = NULL;
@@ -1261,7 +1261,7 @@ static int rt9471_detach_irq_handler(struct rt9471_chip *chip)
 {
 	dev_info(chip->dev, "%s\n", __func__);
 //#ifndef CONFIG_TCPC_CLASS
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	if(is_project(OPLUS_19741)) {
 		mutex_lock(&chip->bc12_lock);
 		atomic_set(&chip->vbus_gd, rt9471_is_vbusgd(chip));
@@ -1357,7 +1357,7 @@ static int rt9471_vbus_gd_irq_handler(struct rt9471_chip *chip)
 {
 	dev_info(chip->dev, "%s\n", __func__);
 //#ifndef CONFIG_TCPC_CLASS
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	if(is_project(OPLUS_19741)) {
 		mutex_lock(&chip->bc12_lock);
 		atomic_set(&chip->vbus_gd, rt9471_is_vbusgd(chip));
@@ -1745,7 +1745,7 @@ static int rt9471_parse_dt(struct rt9471_chip *chip)
 #endif
 	dev_info(chip->dev, "%s intr_gpio %u\n", __func__, chip->intr_gpio);
 
-#ifndef OPLUS_FEATURE_CHG_BASIC
+#ifndef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	/* ceb gpio */
 	if (strcmp(desc->chg_name, "secondary_chg") == 0) {
 		len = strlen(desc->chg_name);
@@ -1956,7 +1956,7 @@ static int rt9471_init_setting(struct rt9471_chip *chip)
 	if (ret < 0)
 		dev_notice(chip->dev, "%s set ovp fail(%d)\n", __func__, ret);
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	if(is_project(19741)){
 		ret = rt9471_clr_bit(chip, RT9471_REG_TOP, 0x80);
 		if (ret < 0) {
@@ -1964,7 +1964,7 @@ static int rt9471_init_setting(struct rt9471_chip *chip)
 				__func__);
 		}
 	}
-#endif /*OPLUS_FEATURE_CHG_BASIC*/
+#endif /*CONFIG_OPLUS_FEATURE_CHG_BASIC*/
 
 	return 0;
 }
@@ -2143,7 +2143,7 @@ static int __rt9471_enable_charging(struct rt9471_chip *chip, bool en)
 					      __func__, ret);
 			return ret;
 		}
-#ifndef OPLUS_FEATURE_CHG_BASIC
+#ifndef CONFIG_OPLUS_FEATURE_CHG_BASIC
 		if (chip->desc->ceb_invert)
 			gpio_set_value(chip->ceb_gpio, en);
 		else
@@ -2557,7 +2557,7 @@ int oplus_rt9471_kick_wdt(void)
 int oplus_rt9471_set_ichg(int cur)
 {
 	u32 uA = cur*1000;
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
    if (strcmp(rt9471->desc->chg_name, "secondary_chg") == 0){ 
 		if(cur){
 			__rt9471_enable_chip(rt9471,true);
@@ -2572,7 +2572,7 @@ int oplus_rt9471_set_ichg(int cur)
 void oplus_rt9471_set_mivr(int vbatt)
 {
 	u32 uV = vbatt*1000 + 200000;
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
     if(uV<4200000)
         uV = 4200000;
 	
@@ -2721,7 +2721,7 @@ int oplus_rt9471_charging_enable(void)
 int oplus_rt9471_charging_disable(void)
 {
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
    if (strcmp(rt9471->desc->chg_name, "secondary_chg") == 0){ 
 	  __rt9471_enable_chip(rt9471,false);
    	}
@@ -2740,7 +2740,7 @@ int oplus_rt9471_hardware_init(void)
 
 	dev_info(rt9471->dev, "%s\n", __func__);
 
-#ifndef OPLUS_FEATURE_CHG_BASIC
+#ifndef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	if (strcmp(rt9471->desc->chg_name, "primary_chg")) {
 		dev_info(rt9471->dev, "%s not primary_chg\n", __func__);
 		return ret;
@@ -2759,7 +2759,7 @@ int oplus_rt9471_hardware_init(void)
 		dev_notice(rt9471->dev, "%s en fail(%d)\n", __func__, ret);
 
 	
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
    if (strcmp(rt9471->desc->chg_name, "secondary_chg") == 0){ 
 	  __rt9471_enable_chip(rt9471,true);
    	}
@@ -3114,7 +3114,7 @@ static int rt9471_probe(struct i2c_client *client,
 				      __func__, ret);
 		goto err_create_file;
 	}
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	if(is_project(OPLUS_19741)) {
 		if (strcmp(chip->desc->chg_name, "primary_chg") == 0)
 			schedule_work(&chip->init_work);
@@ -3128,7 +3128,7 @@ static int rt9471_probe(struct i2c_client *client,
 #else
 	__rt9471_dump_registers(chip);
 #endif
-#endif /*OPLUS_FEATURE_CHG_BASIC*/
+#endif /*CONFIG_OPLUS_FEATURE_CHG_BASIC*/
 	dev_info(chip->dev, "%s successfully\n", __func__);
 	set_charger_ic(RT9471D);
 	return 0;
@@ -3165,7 +3165,7 @@ static void rt9471_shutdown(struct i2c_client *client)
 	struct rt9471_chip *chip = i2c_get_clientdata(client);
 
 	dev_info(chip->dev, "%s\n", __func__);
-#ifndef OPLUS_FEATURE_CHG_BASIC
+#ifndef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	disable_irq_nosync(chip->irq);
 #endif
 	rt9471_reset_register(chip);

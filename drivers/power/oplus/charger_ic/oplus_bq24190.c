@@ -1308,7 +1308,7 @@ static void hw_bc12_init(void)
 }
 
 //static DEVICE_ATTR(bq24190_access, 0664, show_bq24190_access, store_bq24190_access);
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 enum charger_type MTK_CHR_Type_num;
 extern unsigned int upmu_get_rgs_chrdet(void);
 

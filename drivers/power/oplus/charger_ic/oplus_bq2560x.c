@@ -2703,13 +2703,13 @@ static int typec_attach_thread(void *data)
 	struct charger_device *chg_dev = NULL;
 	union power_supply_propval val;
 
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 	unsigned int ms = 0;
 #endif
 	pr_info("++\n");
 	while (!kthread_should_stop()) {
 		wait_for_completion(&bq->chrdet_start);
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 		ms = bq->chgdet_mdelay;
 #endif
 		mutex_lock(&bq->attach_lock);
@@ -2784,11 +2784,11 @@ static int pd_tcp_notifier_call(struct notifier_block *nb,
 			pr_info("USB Plug out\n");
 			if (bq->tcpc_kpoc) {
 				pr_info("typec unattached, power off\n");
-#ifndef OPLUS_FEATURE_CHG_BASIC
+#ifndef CONFIG_OPLUS_FEATURE_CHG_BASIC
 #ifdef FIXME
 				kernel_power_off();
 #endif
-#endif /*OPLUS_FEATURE_CHG_BASIC*/
+#endif /*CONFIG_OPLUS_FEATURE_CHG_BASIC*/
 			}
 			pr_info("call switch_usb_state = 0 \n");
 			//switch_usb_state(0);
