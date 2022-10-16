@@ -2873,10 +2873,10 @@ static int battery_psy_get_prop(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
 		pval->intval = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
-		if (chip && (chip->ui_soc == 0)) {
-			pval->intval = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
-			chg_err("bat pro POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL, should shutdown!!!\n");
-		}
+//		if (chip && (chip->ui_soc == 0)) {
+//			pval->intval = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
+//			chg_err("bat pro POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL, should shutdown!!!\n");
+//		}
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
 		pval->intval = chip->limits.charger_hv_thr;
