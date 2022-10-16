@@ -1357,7 +1357,7 @@ static void hw_bc12_init(void)
 }
 #endif
 //static DEVICE_ATTR(bq25601d_access, 0664, show_bq25601d_access, store_bq25601d_access);
-#ifdef OPLUS_FEATURE_CHG_BASIC
+#ifdef CONFIG_OPLUS_FEATURE_CHG_BASIC
 #ifndef CONFIG_OPLUS_CHARGER_MTK6873
 extern enum charger_type MTK_CHR_Type_num;
 extern unsigned int upmu_get_rgs_chrdet(void);
