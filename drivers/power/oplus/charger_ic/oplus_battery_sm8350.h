@@ -462,7 +462,6 @@ struct battery_chg_dev {
 	struct oem_read_buffer_resp_msg  bcc_read_buffer_dump;
 	int otg_scheme;
 	bool pmic_is_pm7250b;
-	int pre_current;
 #endif
 };
 

@@ -1474,9 +1474,6 @@ static void oplus_vooc_fastchg_func(struct work_struct *work)
 		if (oplus_vooc_get_reply_bits() == 7 || chip->vooc_low_temp_smart_charge) {
 			chip->temp_range_init = true;
 			chip->w_soc_temp_to_mcu = true;
-
-			if (!chip->fastchg_dummy_started && !chip->fastchg_to_warm)
-				oplus_vooc_reset_temp_range(chip);
 			temp = oplus_chg_match_temp_for_chging();
 			soc = oplus_gauge_get_batt_soc();
 			oplus_vooc_init_temp_range(chip, temp);

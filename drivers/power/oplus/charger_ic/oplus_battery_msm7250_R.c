@@ -9085,9 +9085,7 @@ int oplus_chg_set_pd_config(void)
 			msleep(300);
 			printk(KERN_ERR "%s: vbus[%d], ibus[%d], ret[%d]\n", __func__, 5000, 2000, ret);
 			oplus_chg_unsuspend_charger();
-		} else if ((chip->vbatt_num == 1)
-				&& (chip->vooc_project == 1)
-				&& (chip->suport_pd_9v2a == false || (chip->suport_pd_9v2a == true && chip->charger_volt > 7500))) {
+		} else if ((chip->vbatt_num == 1) && (chip->vooc_project == 1) && chip->charger_volt > 7500) {
 			chip->chg_ops->input_current_write(500);
 			oplus_chg_suspend_charger();
 			oplus_chg_config_charger_vsys_threshold(0x03);//set Vsys Skip threshold 101%

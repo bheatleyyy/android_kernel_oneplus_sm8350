@@ -613,7 +613,7 @@ int oplus_battery_get_property(struct power_supply *psy,
 				if (!chip->authenticate) {
 					val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
 				} else {
-					val->intval = chip->prop_status == POWER_SUPPLY_STATUS_NOT_CHARGING ? POWER_SUPPLY_STATUS_DISCHARGING : chip->prop_status;
+					val->intval = chip->prop_status;
 				}
 #ifndef CONFIG_OPLUS_CHARGER_MTK
 				if (oplus_wpc_get_online_status())
@@ -4051,9 +4051,6 @@ int oplus_chg_parse_charger_dt(struct oplus_chg_chip *chip)
 	else
 		chip->support_tbatt_shell = false;
 	charger_xlog_printk(CHG_LOG_CRTI, "qcom,support_tbatt_shell = %d\n", chip->support_tbatt_shell);
-
-        chip->suport_pd_9v2a = of_property_read_bool(node, "qcom,suport_pd_9v2a");
-        charger_xlog_printk(CHG_LOG_CRTI, "qcom,suport_pd_9v2a = %d\n", chip->suport_pd_9v2a);
 
 	return 0;
 }

@@ -57,20 +57,6 @@ oplus_chg-$(CONFIG_OPLUS_SM6375R_CHARGER) += \
 		charger_ic/rt_pd_manager.o \
 		charger_ic/oplus_usbtemp.o
 
-obj-y      += charger_ic/
-obj-y      += gauge_ic/
-obj-y      += vooc_ic/
-obj-y      += adapter_ic/
-
-obj-y      += voocphy/
-
-#obj-y   += oplus_voocphy.o
-
-obj-y	+= oplus_charger.o
-obj-y	+= oplus_gauge.o
-obj-y	+= oplus_vooc.o
-obj-y	+= oplus_adapter.o
-
 obj-$(CONFIG_OPLUS_CHG) := oplus_chg.o
 
 else
@@ -110,7 +96,19 @@ obj-y      += wireless_ic/
 endif
 endif
 
+obj-y      += charger_ic/
+obj-y      += gauge_ic/
+obj-y      += vooc_ic/
+obj-y      += adapter_ic/
 
+obj-y      += voocphy/
+
+#obj-y   += oplus_voocphy.o
+
+obj-y	+= oplus_charger.o
+obj-y	+= oplus_gauge.o
+obj-y	+= oplus_vooc.o
+obj-y	+= oplus_adapter.o
 
 ifneq ($(CONFIG_OPLUS_CHARGER_MTK),y)
 ifeq ($(BRAND_SHOW_FLAG),oneplus)

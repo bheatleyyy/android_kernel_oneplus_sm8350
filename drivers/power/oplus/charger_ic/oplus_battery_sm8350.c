@@ -1868,7 +1868,6 @@ void handle_fastchg_usb(int plug_in)
 	}
 
 	bcdev = chip->pmic_spmi.bcdev_chip;
-	bcdev->pre_current = -1;
 	pluged_in_adsp = plug_in;
 	if (plug_in) {
 		repeat_cnt = 0;
@@ -2467,7 +2466,6 @@ static int usb_psy_get_prop(struct power_supply *psy,
 		}
 
 		if (online ^ pval->intval) {
-			bcdev->pre_current = -1;
 			online = pval->intval;
 			printk(KERN_ERR "!!!!! usb online: [%d]\n", online);
 			if (!is_ext_chg_ops() && oplus_chg_get_voocphy_support() == ADSP_VOOCPHY) {
@@ -2525,7 +2523,6 @@ static int usb_psy_get_prop(struct power_supply *psy,
 			}
 		}
 		if (adap_type ^ pval->intval) {
-			bcdev->pre_current = -1;
 			if (oplus_chg_get_voocphy_support() == NO_VOOCPHY
 					|| oplus_chg_get_voocphy_support() == AP_DUAL_CP_VOOCPHY
 					|| oplus_chg_get_voocphy_support() == AP_SINGLE_CP_VOOCPHY) {
@@ -2846,7 +2843,7 @@ static int battery_psy_get_prop(struct power_supply *psy,
 			} else if (!chip->authenticate) {
 				pval->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
 			} else {
-				pval->intval = chip->prop_status == POWER_SUPPLY_STATUS_NOT_CHARGING ? POWER_SUPPLY_STATUS_DISCHARGING : chip->prop_status;
+				pval->intval = chip->prop_status;
 			}
 			if (oplus_wpc_get_online_status())
 				pre_batt_status = pval->intval;
@@ -2873,10 +2870,10 @@ static int battery_psy_get_prop(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
 		pval->intval = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
-//		if (chip && (chip->ui_soc == 0)) {
-//			pval->intval = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
-//			chg_err("bat pro POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL, should shutdown!!!\n");
-//		}
+		if (chip && (chip->ui_soc == 0)) {
+			pval->intval = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
+			chg_err("bat pro POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL, should shutdown!!!\n");
+		}
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
 		pval->intval = chip->limits.charger_hv_thr;
@@ -4703,7 +4700,6 @@ static void oplus_cid_status_change_work(struct work_struct *work)
 	cid_status = pst->prop[USB_CID_STATUS];
 	printk(KERN_ERR "%s: !!!cid_status[%d]\n", __func__, cid_status);
 	if (cid_status == 0) {
-		bcdev->pre_current = -1;
 		chip->usbtemp_check = false;
 		usbtemp_reset_variables();
 	}
@@ -4811,6 +4807,7 @@ static void oplus_update_usbtemp_current_status(struct oplus_chg_chip *chip)
 
 	batt_current = -oplus_gauge_get_batt_current();
 	protect_temp = usbtemp_select_temp_by_curr(batt_current);
+	chg_err("[%s]batt_curr, protect_temp = %d, %d\n", __func__, batt_current, protect_temp);
 
 	if ((chip->usb_temp_r - (chip->tbatt_temp / 10)) >= protect_temp) {
 		limit_cur_cnt_r++;
@@ -5544,11 +5541,6 @@ static int oplus_chg_set_input_current(int current_ma)
 	}
 
 	bcdev = chip->pmic_spmi.bcdev_chip;
-	if (bcdev->pre_current == current_ma) {
-		chg_err("the same current[%d], do not run aicl again\n", current_ma);
-		return rc;
-	}
-	bcdev->pre_current = current_ma;
 	pst = &bcdev->psy_list[PSY_TYPE_USB];
 	prop_id = get_property_id(pst, POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT);
 
@@ -5860,7 +5852,6 @@ static int smbchg_charging_enable(void)
 		return -1;
 	}
 	bcdev = chip->pmic_spmi.bcdev_chip;
-	bcdev->pre_current = -1;
 	pst = &bcdev->psy_list[PSY_TYPE_BATTERY];
 
 	rc = write_property_id(bcdev, pst, BATT_CHG_EN, 1);
@@ -6296,7 +6287,6 @@ static int smbchg_charging_disable(void)
 		return -1;
 	}
 	bcdev = chip->pmic_spmi.bcdev_chip;
-	bcdev->pre_current = -1;
 	pst = &bcdev->psy_list[PSY_TYPE_BATTERY];
 
 	rc = write_property_id(bcdev, pst, BATT_CHG_EN, 0);
@@ -6345,7 +6335,6 @@ static int smbchg_usb_suspend_enable(void)
 		return -1;
 	}
 	bcdev = chip->pmic_spmi.bcdev_chip;
-	bcdev->pre_current = -1;
 	pst = &bcdev->psy_list[PSY_TYPE_USB];
 
 	prop_id = get_property_id(pst, POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT);
@@ -6371,7 +6360,6 @@ static int smbchg_usb_suspend_disable(void)
 		return -1;
 	}
 	bcdev = chip->pmic_spmi.bcdev_chip;
-	bcdev->pre_current = -1;
 	pst = &bcdev->psy_list[PSY_TYPE_USB];
 
 	prop_id = get_property_id(pst, POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT);
@@ -8401,7 +8389,6 @@ static int battery_chg_probe(struct platform_device *pdev)
 	bcdev->hvdcp_detect_ok = false;
 	bcdev->hvdcp_disable = false;
 	bcdev->adsp_voocphy_err_check = false;
-	bcdev->pre_current = -1;
 #endif
 
 	bcdev->psy_list[PSY_TYPE_BATTERY].map = battery_prop_map;

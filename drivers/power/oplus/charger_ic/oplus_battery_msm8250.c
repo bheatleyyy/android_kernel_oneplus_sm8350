@@ -2659,11 +2659,7 @@ int smblib_set_icl_current(struct smb_charger *chg, int icl_ua)
 		}
 	}
 
-#ifdef OPLUS_CUSTOM_OP_DEF
-	if (suspend || (suspend_usb && !chg->wireless_present))
-#else
 	if (suspend || suspend_usb)
-#endif
 		return smblib_set_usb_suspend(chg, true);
 
 	if (icl_ua == INT_MAX)
@@ -8628,11 +8624,7 @@ irqreturn_t switcher_power_ok_irq_handler(int irq, void *data)
 		if (printk_ratelimit())
 			smblib_err(chg, "Reverse boost detected: voting 0mA to suspend input\n");
 		if (chg->real_charger_type != POWER_SUPPLY_TYPE_USB_CDP
-				&& chg->real_charger_type != POWER_SUPPLY_TYPE_USB
-#ifdef OPLUS_CUSTOM_OP_DEF
-				&& !chg->wireless_present
-#endif
-		)
+				&& chg->real_charger_type != POWER_SUPPLY_TYPE_USB)
 			vote(chg->usb_icl_votable, BOOST_BACK_VOTER, true, 0);
 #endif /* CONFIG_OPLUS_FEATURE_CHG_BASIC */
 	}

@@ -956,7 +956,6 @@ struct oplus_chg_chip {
 	struct mutex bcc_curr_done_mutex;
 	int bcc_curr_done;
 	int transfer_timeout_count;
-        bool suport_pd_9v2a;
 };
 
 

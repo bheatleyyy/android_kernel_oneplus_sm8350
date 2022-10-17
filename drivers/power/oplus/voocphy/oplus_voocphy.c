@@ -3197,8 +3197,6 @@ void oplus_voocphy_handle_voocphy_status(struct work_struct *work)
 		//check fastchg out
 		oplus_voocphy_wake_check_chg_out_work(3000);
 		oplus_chg_wake_update_work();
-		if (oplus_chg_check_disable_charger() != false)
-			oplus_chg_disable_charge();
 	} else if (intval == FAST_NOTIFY_BATT_TEMP_OVER) {
 		voocphy_info("FAST_NOTIFY_BATT_TEMP_OVER\r\n");
 		oplus_chg_set_chargerid_switch_val(0);
@@ -3221,8 +3219,6 @@ void oplus_voocphy_handle_voocphy_status(struct work_struct *work)
 		oplus_voocphy_monitor_timer_start(chip, VOOC_THREAD_TIMER_FASTCHG_CHECK, VOOC_FASTCHG_CHECK_TIME);
 		oplus_voocphy_wake_check_chg_out_work(3000);
 		oplus_chg_wake_update_work();
-		if (oplus_chg_check_disable_charger() != false)
-			oplus_chg_disable_charge();
 	} else if (intval == FAST_NOTIFY_ERR_COMMU) {
 		chip->fastchg_start = false;
 		chip->fastchg_to_warm = false;
